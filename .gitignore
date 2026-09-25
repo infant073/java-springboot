@@ -1,0 +1,12 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### Optionals ###
+.idea/
+.classpath
+.project
+.settings/
+*.log
+*.class

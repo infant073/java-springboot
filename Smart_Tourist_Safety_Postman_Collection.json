@@ -1,0 +1,274 @@
+{
+	"info": {
+		"_postman_id": "8f2c3d10-91a5-4e76-b9e1-touristsafety",
+		"name": "Smart Tourist Safety & Geo-Fencing API Collection",
+		"description": "Postman REST API collection for Smart Tourist Safety Monitoring and Geo-Fencing Incident Response System.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Tourist Management",
+			"item": [
+				{
+					"name": "Get All Tourists",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tourists",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "tourists"]
+						}
+					}
+				},
+				{
+					"name": "Get Tourist By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tourists/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "tourists", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create Tourist",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Alex Rivera\",\n  \"email\": \"alex.rivera@example.com\",\n  \"phone\": \"+1-555-0991\",\n  \"address\": \"100 Skyline Blvd, Seattle WA\",\n  \"emergencyContactName\": \"Maria Rivera\",\n  \"emergencyContactPhone\": \"+1-555-0992\",\n  \"passType\": \"ADVENTURE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/tourists",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "tourists"]
+						}
+					}
+				},
+				{
+					"name": "Trigger SOS Alert for Tourist",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"latitude\": 11.0168,\n  \"longitude\": 76.9558,\n  \"alertType\": \"MEDICAL\",\n  \"message\": \"Emergency medical assistance required on steep trail\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/tourists/2/sos",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "tourists", "2", "sos"]
+						}
+					}
+				},
+				{
+					"name": "Get Active SOS Alerts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tourists/active-sos",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "tourists", "active-sos"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Geo-Fenced Safety Zones",
+			"item": [
+				{
+					"name": "Get All Safety Zones",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/safety-zones",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "safety-zones"]
+						}
+					}
+				},
+				{
+					"name": "Check Coordinates Geo-Fence",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/safety-zones/check?latitude=11.0168&longitude=76.9558",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "safety-zones", "check"],
+							"query": [
+								{ "key": "latitude", "value": "11.0168" },
+								{ "key": "longitude", "value": "76.9558" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Safety Zone",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"zoneName\": \"High Alpine Ridge Zone C\",\n  \"description\": \"High altitude ridge subject to severe snow squalls\",\n  \"latitude\": 11.0500,\n  \"longitude\": 76.9800,\n  \"radius\": 4.0,\n  \"dangerLevel\": \"HIGH\",\n  \"warningMessage\": \"ALERT: High wind and frostbite risk!\",\n  \"status\": \"ACTIVE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/safety-zones",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "safety-zones"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. SOS & Rescue Operations",
+			"item": [
+				{
+					"name": "Get All SOS Alerts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/sos",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "sos"]
+						}
+					}
+				},
+				{
+					"name": "Update SOS Alert Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"RESOLVED\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/sos/1/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "sos", "1", "status"]
+						}
+					}
+				},
+				{
+					"name": "Get All Rescue Operations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/rescue-operations",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "rescue-operations"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Financial & Budget Modules",
+			"item": [
+				{
+					"name": "Create Purchase Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vendorId\": 1,\n  \"description\": \"Procurement of 5 Air Rescue Stretchers\",\n  \"totalAmount\": 4500.00,\n  \"status\": \"APPROVED\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/purchase-orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "purchase-orders"]
+						}
+					}
+				},
+				{
+					"name": "Get All Budgets",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/budgets",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "budgets"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Safety & Financial Reports",
+			"item": [
+				{
+					"name": "Get Profit & Loss Report",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/reports/profit-loss",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "reports", "profit-loss"]
+						}
+					}
+				},
+				{
+					"name": "Get Balance Sheet Report",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/reports/balance-sheet",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "reports", "balance-sheet"]
+						}
+					}
+				},
+				{
+					"name": "Get Budget Analytics Report",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/reports/budget",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "reports", "budget"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

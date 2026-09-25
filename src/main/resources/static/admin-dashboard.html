@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — Smart Tourist Safety Monitoring System</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom Stylesheet -->
+    <link href="css/styles.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div id="wrapper">
+    <!-- Sidebar Navigation -->
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-icon">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+            <div>
+                <h4>TouristSafety</h4>
+                <div class="small text-danger fw-bold" style="font-size: 0.7rem;">ADMIN CONTROL PANEL</div>
+            </div>
+        </div>
+
+        <ul class="components">
+            <li>
+                <a href="#" class="nav-link-item active" data-section="dashboard">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link-item" data-section="sos">
+                    <i class="fas fa-bell text-danger"></i> Live SOS Response
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link-item" data-section="safety-zones">
+                    <i class="fas fa-draw-polygon"></i> Safety &amp; Danger Zones
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link-item" data-section="rescue-ops">
+                    <i class="fas fa-truck-medical"></i> Rescue Operations
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link-item" data-section="tourists">
+                    <i class="fas fa-users"></i> Tourist Directory
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link-item" data-section="passes">
+                    <i class="fas fa-id-card"></i> Digital Tourist Passes
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link-item" data-section="vendors">
+                    <i class="fas fa-building"></i> Vendors &amp; Telecom
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link-item" data-section="finance">
+                    <i class="fas fa-file-invoice-dollar"></i> POs, Bills &amp; Payments
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link-item" data-section="budgets">
+                    <i class="fas fa-piggy-bank"></i> Safety Budgets
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link-item" data-section="reports">
+                    <i class="fas fa-file-contract"></i> Reports &amp; Analytics
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="logout()" style="color:#ef4444; font-weight:600;">
+                    <i class="fas fa-right-from-bracket"></i> Logout
+                </a>
+            </li>
+        </ul>
+
+        <div class="p-3 border-top border-secondary text-center text-muted small">
+            <i class="fas fa-user-shield text-danger"></i> Logged in as <strong id="sidebar-user-name">Admin</strong>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <div id="content">
+        <!-- Main Navbar Header -->
+        <header class="main-header">
+            <div class="d-flex align-items-center gap-3">
+                <h3 class="header-title" id="header-title-text">Dashboard Overview</h3>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+                <div id="sos-pulse-banner" class="sos-pulse-badge" style="display: none;">
+                    <div class="dot-beacon"></div>
+                    <span id="sos-pulse-count">0 ACTIVE EMERGENCY SOS ALERT(S)!</span>
+                </div>
+
+                <button class="btn btn-danger btn-sm px-3 fw-bold" onclick="openTriggerSosModal()">
+                    <i class="fas fa-exclamation-triangle"></i> Simulate Tourist SOS
+                </button>
+
+                <button class="btn btn-outline-secondary btn-sm fw-bold" onclick="logout()">
+                    <i class="fas fa-right-from-bracket"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Body Area -->
+        <main class="main-body">
+
+            <!-- 1. DASHBOARD SECTION -->
+            <section id="section-dashboard" class="content-section active">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="icon-box icon-blue"><i class="fas fa-user-friends"></i></div>
+                            <div class="stat-value" id="stat-total-tourists">0</div>
+                            <div class="stat-label">Total Registered Tourists</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="icon-box icon-purple"><i class="fas fa-id-card"></i></div>
+                            <div class="stat-value" id="stat-active-passes">0</div>
+                            <div class="stat-label">Active Digital Passes</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="icon-box icon-red"><i class="fas fa-triangle-exclamation"></i></div>
+                            <div class="stat-value text-danger" id="stat-active-sos">0</div>
+                            <div class="stat-label">Active SOS Alerts</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="icon-box icon-warning"><i class="fas fa-map-location-dot"></i></div>
+                            <div class="stat-value" id="stat-active-zones">0</div>
+                            <div class="stat-label">Configured Safety Zones</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="icon-box icon-green"><i class="fas fa-sack-dollar"></i></div>
+                            <div class="stat-value text-success" id="stat-total-revenue">$0</div>
+                            <div class="stat-label">Total Pass Revenue</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="icon-box icon-red"><i class="fas fa-kit-medical"></i></div>
+                            <div class="stat-value text-danger" id="stat-rescue-costs">$0</div>
+                            <div class="stat-label">Total Rescue Costs</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="icon-box icon-cyan"><i class="fas fa-wallet"></i></div>
+                            <div class="stat-value" id="stat-allocated-budget">$0</div>
+                            <div class="stat-label">Allocated Safety Budget</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="icon-box icon-blue"><i class="fas fa-piggy-bank"></i></div>
+                            <div class="stat-value text-primary" id="stat-remaining-budget">$0</div>
+                            <div class="stat-label">Remaining Safety Budget</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Charts -->
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="custom-table-card p-4">
+                            <h5 class="fw-bold mb-3"><i class="fas fa-chart-bar text-primary"></i> Revenue vs Operational Costs</h5>
+                            <canvas id="chart-financials" height="200"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="custom-table-card p-4">
+                            <h5 class="fw-bold mb-3"><i class="fas fa-chart-pie text-danger"></i> SOS Alert Status Breakdown</h5>
+                            <canvas id="chart-sos-status" height="200"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="custom-table-card p-4">
+                            <h5 class="fw-bold mb-3"><i class="fas fa-chart-column text-success"></i> Budget Allocation vs Actual Spending</h5>
+                            <canvas id="chart-budget" height="100"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. TOURIST MANAGEMENT SECTION -->
+            <section id="section-tourists" class="content-section">
+                <div class="custom-table-card">
+                    <div class="table-header-action">
+                        <h5 class="table-title"><i class="fas fa-users text-primary"></i> Tourist Directory</h5>
+                        <button class="btn btn-primary btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalTourist" onclick="document.getElementById('form-tourist').reset(); document.getElementById('tourist-id').value='';">
+                            <i class="fas fa-plus"></i> Add New Tourist
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tourist Name &amp; Email</th>
+                                    <th>Phone</th>
+                                    <th>Digital Pass</th>
+                                    <th>Pass Type</th>
+                                    <th>Emergency Contact</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tourists-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. DIGITAL TOURIST PASSES SECTION -->
+            <section id="section-passes" class="content-section">
+                <div class="custom-table-card">
+                    <div class="table-header-action">
+                        <h5 class="table-title"><i class="fas fa-id-card text-purple"></i> Digital Tourist Passes</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Pass Number</th>
+                                    <th>Tourist ID</th>
+                                    <th>Pass Type</th>
+                                    <th>Issue Date</th>
+                                    <th>Expiry Date</th>
+                                    <th>Fee Amount</th>
+                                    <th>Payment Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="passes-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. SAFETY & DANGER ZONES SECTION -->
+            <section id="section-safety-zones" class="content-section">
+                <!-- Geo-Fencing Calculator Tool Card -->
+                <div class="custom-table-card p-4 mb-4 bg-light border-danger">
+                    <h5 class="fw-bold text-danger"><i class="fas fa-satellite text-danger"></i> Live Geo-Fencing GPS Location Checker</h5>
+                    <p class="text-muted small">Enter GPS coordinates to test whether a tourist position breaches any danger zone boundaries using the Haversine formula calculation.</p>
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Latitude</label>
+                            <input type="number" step="any" id="geo-test-lat" class="form-control" value="11.0168">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Longitude</label>
+                            <input type="number" step="any" id="geo-test-lng" class="form-control" value="76.9558">
+                        </div>
+                        <div class="col-md-4 mt-4">
+                            <button class="btn btn-danger w-100 fw-bold" onclick="testGeoFencing()">
+                                <i class="fas fa-crosshairs"></i> Test Geo-Fence Boundary
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="geo-fence-result-box" style="display: none;"></div>
+                </div>
+
+                <!-- Zone Table -->
+                <div class="custom-table-card">
+                    <div class="table-header-action">
+                        <h5 class="table-title"><i class="fas fa-map-marked-alt text-warning"></i> Configured Geo-Fenced Safety &amp; Danger Zones</h5>
+                        <button class="btn btn-warning text-dark btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalZone" onclick="document.getElementById('form-zone').reset(); document.getElementById('zone-id').value='';">
+                            <i class="fas fa-plus"></i> Create Safety Zone
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Zone Name &amp; Description</th>
+                                    <th>Danger Level</th>
+                                    <th>Center Coordinates</th>
+                                    <th>Radius (km)</th>
+                                    <th>Warning Message</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="zones-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. LIVE SOS EMERGENCY INCIDENT MONITORING SECTION -->
+            <section id="section-sos" class="content-section">
+                <div class="custom-table-card border-danger">
+                    <div class="table-header-action bg-danger text-white">
+                        <h5 class="table-title text-white"><i class="fas fa-bell"></i> Live SOS Incident Response Center (Auto-Refreshing 5s)</h5>
+                        <button class="btn btn-light btn-sm fw-bold" onclick="openTriggerSosModal()">
+                            <i class="fas fa-triangle-exclamation text-danger"></i> Dispatch Test SOS
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>SOS ID</th>
+                                    <th>Tourist</th>
+                                    <th>Alert Type</th>
+                                    <th>GPS Coordinates</th>
+                                    <th>Geo-Fence Danger Zone</th>
+                                    <th>Alert Time</th>
+                                    <th>Status</th>
+                                    <th>Incident Response Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sos-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. EMERGENCY RESCUE OPERATIONS SECTION -->
+            <section id="section-rescue-ops" class="content-section">
+                <div class="custom-table-card">
+                    <div class="table-header-action">
+                        <h5 class="table-title"><i class="fas fa-truck-medical text-danger"></i> Active Emergency Rescue Operations</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Op ID</th>
+                                    <th>SOS Alert</th>
+                                    <th>Response Team</th>
+                                    <th>Location</th>
+                                    <th>Cost Breakdown</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rescue-ops-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. VENDORS & TELECOM SECTION -->
+            <section id="section-vendors" class="content-section">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="custom-table-card">
+                            <div class="table-header-action">
+                                <h5 class="table-title"><i class="fas fa-truck text-primary"></i> Rescue Gear Vendors</h5>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Vendor</th>
+                                            <th>Contact Person</th>
+                                            <th>Email / Phone</th>
+                                            <th>GST Number</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="vendors-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="custom-table-card">
+                            <div class="table-header-action">
+                                <h5 class="table-title"><i class="fas fa-tower-cell text-info"></i> Telecom &amp; Satellite Providers</h5>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Provider</th>
+                                            <th>Contact</th>
+                                            <th>Phone</th>
+                                            <th>Service Type</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="telecom-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. FINANCIAL MANAGEMENT SECTION -->
+            <section id="section-finance" class="content-section">
+                <div class="row g-4">
+                    <div class="col-md-12">
+                        <div class="custom-table-card">
+                            <div class="table-header-action">
+                                <h5 class="table-title"><i class="fas fa-file-invoice text-success"></i> Purchase Orders</h5>
+                                <button class="btn btn-success btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalPo">
+                                    <i class="fas fa-plus"></i> Create Purchase Order
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>PO Number</th>
+                                            <th>Vendor ID</th>
+                                            <th>Order Date</th>
+                                            <th>Description</th>
+                                            <th>Total Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="po-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="custom-table-card">
+                            <div class="table-header-action">
+                                <h5 class="table-title"><i class="fas fa-receipt text-warning"></i> Vendor Bills</h5>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Bill #</th>
+                                            <th>PO #</th>
+                                            <th>Vendor</th>
+                                            <th>Bill Date</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bills-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="custom-table-card">
+                            <div class="table-header-action">
+                                <h5 class="table-title"><i class="fas fa-money-bill-transfer text-primary"></i> Payment Records</h5>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Ref #</th>
+                                            <th>Type</th>
+                                            <th>Payment Date</th>
+                                            <th>Amount</th>
+                                            <th>Method</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="payments-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. BUDGETS & ACCOUNTING SECTION -->
+            <section id="section-budgets" class="content-section">
+                <div class="row g-4">
+                    <div class="col-md-12">
+                        <div class="custom-table-card">
+                            <div class="table-header-action">
+                                <h5 class="table-title"><i class="fas fa-piggy-bank text-primary"></i> Regional Safety Budgets</h5>
+                                <button class="btn btn-primary btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalBudget">
+                                    <i class="fas fa-plus"></i> Allocate Budget
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Budget Name &amp; Region</th>
+                                            <th>Allocated Amount</th>
+                                            <th>Actual Spent</th>
+                                            <th>Remaining Budget</th>
+                                            <th>Utilization %</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="budgets-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="custom-table-card">
+                            <div class="table-header-action">
+                                <h5 class="table-title"><i class="fas fa-book-journal-whills text-secondary"></i> Double-Entry Accounting General Journals</h5>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Journal #</th>
+                                            <th>Date</th>
+                                            <th>Description</th>
+                                            <th>Reference Type</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="journals-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 10. REPORTS & ANALYTICS SECTION -->
+            <section id="section-reports" class="content-section">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="custom-table-card p-4 border-primary">
+                            <h4 class="fw-bold text-primary mb-3"><i class="fas fa-scale-balanced"></i> Financial Balance Sheet</h4>
+                            <div class="d-flex justify-content-between py-2 border-bottom">
+                                <span>Equipment &amp; Satellite Assets:</span>
+                                <strong id="rep-bs-equipment">$0</strong>
+                            </div>
+                            <div class="d-flex justify-content-between py-2 border-bottom">
+                                <span>Cash &amp; Treasury Reserves:</span>
+                                <strong id="rep-bs-cash">$0</strong>
+                            </div>
+                            <div class="d-flex justify-content-between py-2 border-bottom bg-light fw-bold">
+                                <span>TOTAL ASSETS:</span>
+                                <strong class="text-success" id="rep-bs-total-assets">$0</strong>
+                            </div>
+                            <div class="d-flex justify-content-between py-2 border-bottom mt-2">
+                                <span>Vendor Accounts Payable:</span>
+                                <strong id="rep-bs-liabilities" class="text-danger">$0</strong>
+                            </div>
+                            <div class="d-flex justify-content-between py-3 mt-3 bg-primary text-white rounded p-3">
+                                <span>NET FINANCIAL POSITION:</span>
+                                <strong id="rep-bs-net-position">$0</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="custom-table-card p-4 border-success">
+                            <h4 class="fw-bold text-success mb-3"><i class="fas fa-chart-pie"></i> Profit &amp; Loss Statement</h4>
+                            <div class="d-flex justify-content-between py-2 border-bottom">
+                                <span>Total Tourist Pass Revenue:</span>
+                                <strong class="text-success" id="rep-pnl-revenue">$0</strong>
+                            </div>
+                            <div class="d-flex justify-content-between py-2 border-bottom">
+                                <span>Emergency Rescue Operational Expenses:</span>
+                                <strong class="text-danger" id="rep-pnl-costs">$0</strong>
+                            </div>
+                            <div class="d-flex justify-content-between py-2 border-bottom mt-2">
+                                <span>Net Surplus / Profit:</span>
+                                <strong id="rep-pnl-net">$0</strong>
+                            </div>
+                            <div class="d-flex justify-content-between py-3 mt-3 bg-success text-white rounded p-3">
+                                <span>PROFIT MARGIN RATE:</span>
+                                <strong id="rep-pnl-margin">0%</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-table-card">
+                    <div class="table-header-action">
+                        <h5 class="table-title"><i class="fas fa-table-list text-info"></i> Regional Budget Analytical Performance</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Budget Name</th>
+                                    <th>Region</th>
+                                    <th>Zone</th>
+                                    <th>Allocated</th>
+                                    <th>Spent</th>
+                                    <th>Remaining</th>
+                                    <th>Utilization %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rep-budget-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<!-- MODALS -->
+
+<!-- Modal: Add/Edit Tourist -->
+<div class="modal fade" id="modalTourist" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="form-tourist" onsubmit="saveTourist(event)">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tourist Information</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="tourist-id">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="tourist-name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="tourist-email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" id="tourist-phone" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Residential Address</label>
+                        <input type="text" id="tourist-address" class="form-control">
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Emergency Contact Name</label>
+                            <input type="text" id="tourist-emergency-name" class="form-control" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Emergency Contact Phone</label>
+                            <input type="text" id="tourist-emergency-phone" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Pass Type</label>
+                        <select id="tourist-pass-type" class="form-select">
+                            <option value="STANDARD">STANDARD ($50)</option>
+                            <option value="PREMIUM">PREMIUM ($150)</option>
+                            <option value="ADVENTURE">ADVENTURE ($250)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Tourist</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Add/Edit Safety Zone -->
+<div class="modal fade" id="modalZone" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="form-zone" onsubmit="saveZone(event)">
+                <div class="modal-header">
+                    <h5 class="modal-title">Configure Safety / Danger Zone</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="zone-id">
+                    <div class="mb-3">
+                        <label class="form-label">Zone Name</label>
+                        <input type="text" id="zone-name" class="form-control" placeholder="e.g. Mountain Trekking Safety Zone B" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea id="zone-description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Latitude</label>
+                            <input type="number" step="any" id="zone-latitude" class="form-control" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Longitude</label>
+                            <input type="number" step="any" id="zone-longitude" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Radius (Kilometers)</label>
+                            <input type="number" step="0.1" id="zone-radius" class="form-control" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Danger Level</label>
+                            <select id="zone-danger-level" class="form-select">
+                                <option value="LOW">LOW</option>
+                                <option value="MEDIUM">MEDIUM</option>
+                                <option value="HIGH">HIGH</option>
+                                <option value="CRITICAL">CRITICAL</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Warning Message Alert</label>
+                        <input type="text" id="zone-warning-message" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold">Save Zone</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Trigger Emergency SOS -->
+<div class="modal fade" id="modalTriggerSos" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-danger">
+            <form id="form-sos" onsubmit="submitSosAlert(event)">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title text-white"><i class="fas fa-triangle-exclamation"></i> Dispatch Emergency SOS Alert</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="sos-modal-tourist-label" class="fw-bold text-danger mb-2"></div>
+                    <div class="mb-3">
+                        <label class="form-label">Tourist ID</label>
+                        <input type="number" id="sos-tourist-id" class="form-control" value="2" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">GPS Latitude</label>
+                            <input type="number" step="any" id="sos-latitude" class="form-control" value="11.0168" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">GPS Longitude</label>
+                            <input type="number" step="any" id="sos-longitude" class="form-control" value="76.9558" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Alert Type</label>
+                        <select id="sos-alert-type" class="form-select">
+                            <option value="MEDICAL">MEDICAL EMERGENCY</option>
+                            <option value="LOST">LOST / STRANDED</option>
+                            <option value="ACCIDENT">ACCIDENT / FALL</option>
+                            <option value="ANIMAL_ATTACK">WILDLIFE ATTACK</option>
+                            <option value="WEATHER">WEATHER HAZARD</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Emergency Message</label>
+                        <textarea id="sos-message" class="form-control" rows="2" required>SOS! Emergency rescue team required immediately.</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger fw-bold"><i class="fas fa-paper-plane"></i> Send SOS Signal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Purchase Order -->
+<div class="modal fade" id="modalPo" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form onsubmit="createPurchaseOrder(event)">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Emergency Equipment PO</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Vendor ID</label>
+                        <input type="number" id="po-vendor-id" class="form-control" value="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Equipment Description</label>
+                        <input type="text" id="po-description" class="form-control" placeholder="e.g. Procurement of Rescue Satellite Transceivers" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Total Amount ($)</label>
+                        <input type="number" step="0.01" id="po-amount" class="form-control" value="5000.00" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Issue PO</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Budget Allocation -->
+<div class="modal fade" id="modalBudget" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form onsubmit="saveBudget(event)">
+                <div class="modal-header">
+                    <h5 class="modal-title">Allocate Regional Safety Budget</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Budget Name</label>
+                        <input type="text" id="budget-name" class="form-control" required placeholder="e.g. Alpine Safety Fund">
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Region</label>
+                            <input type="text" id="budget-region" class="form-control" required placeholder="Northern Region">
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Zone</label>
+                            <input type="text" id="budget-zone" class="form-control" required placeholder="Mountain Zone B">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Allocated Amount ($)</label>
+                        <input type="number" step="0.01" id="budget-allocated" class="form-control" required value="25000.00">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Budget</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Printable Invoice Receipt -->
+<div class="modal fade" id="modalInvoice" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content p-4">
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                <div>
+                    <h4 class="fw-bold mb-0 text-primary"><i class="fas fa-shield-halved"></i> Digital Tourist Pass Invoice</h4>
+                    <div class="small text-muted">Smart Tourist Safety Platform</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="row mb-3">
+                <div class="col-6">
+                    <div class="small text-muted">INVOICE NUMBER</div>
+                    <strong id="invoice-number">INV-PASS-1001</strong>
+                </div>
+                <div class="col-6 text-end">
+                    <div class="small text-muted">ISSUE DATE</div>
+                    <strong id="invoice-date">2026-09-25</strong>
+                </div>
+            </div>
+            <table class="table table-bordered mb-3">
+                <thead class="table-light">
+                    <tr>
+                        <th>Pass Details</th>
+                        <th class="text-end">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div>Digital Pass: <strong id="invoice-pass-num">PASS-1001</strong></div>
+                            <div class="small text-muted">Tier: <span id="invoice-pass-type">PREMIUM</span></div>
+                        </td>
+                        <td class="text-end" id="invoice-subtotal">$150.00</td>
+                    </tr>
+                    <tr>
+                        <td class="text-end">GST Tax (18%):</td>
+                        <td class="text-end" id="invoice-tax">$27.00</td>
+                    </tr>
+                    <tr class="table-dark">
+                        <td class="text-end fw-bold">TOTAL AMOUNT PAID:</td>
+                        <td class="text-end fw-bold" id="invoice-total">$177.00</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="text-center">
+                <button class="btn btn-outline-primary btn-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Invoice</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // AUTH GUARD FOR ADMIN
+    (async function authGuard() {
+        const role = localStorage.getItem('userRole');
+        const userName = localStorage.getItem('userName');
+
+        if (!role) {
+            try {
+                const res = await fetch('/api/auth/me', { credentials: 'include' });
+                if (!res.ok) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+                const data = await res.json();
+                localStorage.setItem('userRole', data.userRole);
+                localStorage.setItem('userName', data.userName);
+
+                if (data.userRole !== 'ADMIN') {
+                    alert('Access Denied. This dashboard is for ADMIN users only.');
+                    window.location.href = '/login.html';
+                }
+            } catch (e) {
+                window.location.href = '/login.html';
+            }
+        } else if (role !== 'ADMIN') {
+            alert('Access Denied. This dashboard is for ADMIN users only.');
+            window.location.href = '/login.html';
+        }
+
+        if (userName) {
+            document.getElementById('sidebar-user-name').textContent = userName;
+        }
+    })();
+
+    async function logout() {
+        try {
+            await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+        } catch (e) {}
+        localStorage.clear();
+        window.location.href = '/login.html';
+    }
+</script>
+
+<script src="js/app.js"></script>
+</body>
+</html>

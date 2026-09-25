@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Smart Tourist Safety Monitoring System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --danger: #ef4444;
+            --success: #10b981;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated background orbs */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            animation: float 8s ease-in-out infinite;
+        }
+        body::before {
+            width: 500px; height: 500px;
+            background: #2563eb;
+            top: -100px; left: -100px;
+        }
+        body::after {
+            width: 400px; height: 400px;
+            background: #ef4444;
+            bottom: -100px; right: -100px;
+            animation-delay: 4s;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-30px); }
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 460px;
+            padding: 1rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Branding Header */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .brand-icon {
+            width: 72px; height: 72px;
+            background: linear-gradient(135deg, #ef4444, #2563eb);
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            margin-bottom: 1rem;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+        }
+        .brand-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+        .brand-subtitle {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.55);
+            margin-top: 0.3rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Card */
+        .login-card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.3rem;
+        }
+        .card-desc {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        /* Form elements */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+        .input-wrapper {
+            position: relative;
+        }
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            background: #f8fafc;
+            transition: all 0.2s;
+            outline: none;
+        }
+        .form-input:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .toggle-password:hover { color: var(--primary); }
+
+        /* Error / Info Alert */
+        .alert-box {
+            padding: 0.875rem 1rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 1.25rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .alert-box.error {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+        .alert-box.success {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .alert-box.visible { display: flex; }
+
+        /* Login Button */
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+        }
+        .btn-login:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.45);
+        }
+        .btn-login:active:not(:disabled) { transform: translateY(0); }
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Spinner */
+        .spinner {
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Credentials hint section */
+        .credentials-hint {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .credentials-hint-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+        .credential-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.15s;
+            border-radius: 6px;
+            padding-left: 0.5rem;
+        }
+        .credential-item:last-child { border-bottom: none; }
+        .credential-item:hover { background: #e2e8f0; }
+        .role-badge {
+            padding: 0.25em 0.65em;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-width: 90px;
+            text-align: center;
+        }
+        .role-admin { background: rgba(239,68,68,0.15); color: #b91c1c; }
+        .role-finance { background: rgba(16,185,129,0.15); color: #047857; }
+        .role-tourist { background: rgba(37,99,235,0.15); color: #1d4ed8; }
+        .credential-info { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+        .credential-info strong { color: var(--text-main); font-size: 0.85rem; }
+
+        /* Footer */
+        .login-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.4);
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+
+    <!-- Brand Header -->
+    <div class="brand-header">
+        <div class="brand-icon"><i class="fas fa-shield-halved"></i></div>
+        <div class="brand-title">Tourist Safety System</div>
+        <div class="brand-subtitle">Geo-Fencing &amp; Incident Response Platform</div>
+    </div>
+
+    <!-- Login Card -->
+    <div class="login-card">
+        <div class="card-title">Welcome Back</div>
+        <div class="card-desc">Sign in to access the safety monitoring dashboard.</div>
+
+        <!-- Error/Success Alert -->
+        <div id="alert-box" class="alert-box">
+            <i id="alert-icon" class="fas fa-circle-exclamation"></i>
+            <span id="alert-message">Error message here</span>
+        </div>
+
+        <!-- Login Form -->
+        <form id="login-form" onsubmit="handleLogin(event)" novalidate>
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" id="email" class="form-input"
+                           placeholder="admin@touristsafety.com"
+                           required autocomplete="email">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="password" class="form-input"
+                           placeholder="Enter your password"
+                           required autocomplete="current-password">
+                    <i class="fas fa-eye toggle-password" id="toggle-pass" onclick="togglePassword()"></i>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login" id="login-btn">
+                <div class="spinner" id="login-spinner"></div>
+                <i class="fas fa-right-to-bracket" id="login-icon"></i>
+                <span id="login-btn-text">Sign In</span>
+            </button>
+        </form>
+
+        <!-- Quick Credential Fill Hints -->
+        <div class="credentials-hint">
+            <div class="credentials-hint-title">
+                <i class="fas fa-key"></i> &nbsp;Quick Fill — Sample Credentials
+            </div>
+            <div class="credential-item" onclick="fillCredentials('admin@touristsafety.com', 'Admin@123')">
+                <span class="role-badge role-admin"><i class="fas fa-user-shield"></i> Admin</span>
+                <div class="credential-info">
+                    <strong>admin@touristsafety.com</strong><br>
+                    Password: Admin@123
+                </div>
+            </div>
+            <div class="credential-item" onclick="fillCredentials('finance@touristsafety.com', 'Finance@123')">
+                <span class="role-badge role-finance"><i class="fas fa-calculator"></i> Finance</span>
+                <div class="credential-info">
+                    <strong>finance@touristsafety.com</strong><br>
+                    Password: Finance@123
+                </div>
+            </div>
+            <div class="credential-item" onclick="fillCredentials('tourist@touristsafety.com', 'Tourist@123')">
+                <span class="role-badge role-tourist"><i class="fas fa-person-hiking"></i> Tourist</span>
+                <div class="credential-info">
+                    <strong>tourist@touristsafety.com</strong><br>
+                    Password: Tourist@123
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-footer">
+        &copy; 2026 Smart Tourist Safety Monitoring &amp; Geo-Fencing Incident Response System
+    </div>
+</div>
+
+<script>
+    // ----------------------------------------------------------------
+    // Check if user is already logged in — redirect if so
+    // ----------------------------------------------------------------
+    (async function checkSession() {
+        try {
+            const res = await fetch('/api/auth/me', { credentials: 'include' });
+            if (res.ok) {
+                const data = await res.json();
+                redirectByRole(data.userRole);
+            }
+        } catch (e) { /* not logged in */ }
+    })();
+
+    // ----------------------------------------------------------------
+    // Handle Login Form Submit
+    // ----------------------------------------------------------------
+    async function handleLogin(event) {
+        event.preventDefault();
+        hideAlert();
+
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+
+        if (!email || !password) {
+            showAlert('error', 'Please enter your email and password.');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // Important: include cookies for session
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Store user info in localStorage for frontend use
+                localStorage.setItem('userId', data.userId);
+                localStorage.setItem('userName', data.name);
+                localStorage.setItem('userEmail', data.email);
+                localStorage.setItem('userRole', data.role);
+                if (data.touristId) {
+                    localStorage.setItem('touristId', data.touristId);
+                }
+
+                showAlert('success', `Welcome, ${data.name}! Redirecting to your dashboard...`);
+
+                setTimeout(() => redirectByRole(data.role), 800);
+            } else {
+                showAlert('error', data.message || 'Invalid email or password. Please try again.');
+            }
+        } catch (err) {
+            showAlert('error', 'Connection error. Please ensure the server is running.');
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // Redirect based on role
+    // ----------------------------------------------------------------
+    function redirectByRole(role) {
+        if (role === 'ADMIN') {
+            window.location.href = '/admin-dashboard.html';
+        } else if (role === 'FINANCE_OFFICER') {
+            window.location.href = '/finance-dashboard.html';
+        } else if (role === 'TOURIST') {
+            window.location.href = '/tourist-dashboard.html';
+        } else {
+            window.location.href = '/index.html';
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // UI Helpers
+    // ----------------------------------------------------------------
+    function setLoading(isLoading) {
+        const btn = document.getElementById('login-btn');
+        const spinner = document.getElementById('login-spinner');
+        const icon = document.getElementById('login-icon');
+        const text = document.getElementById('login-btn-text');
+
+        btn.disabled = isLoading;
+        spinner.style.display = isLoading ? 'block' : 'none';
+        icon.style.display = isLoading ? 'none' : 'inline';
+        text.textContent = isLoading ? 'Signing In...' : 'Sign In';
+    }
+
+    function showAlert(type, message) {
+        const box = document.getElementById('alert-box');
+        const icon = document.getElementById('alert-icon');
+        const msg = document.getElementById('alert-message');
+
+        box.className = `alert-box ${type} visible`;
+        icon.className = type === 'error'
+            ? 'fas fa-circle-exclamation'
+            : 'fas fa-circle-check';
+        msg.textContent = message;
+    }
+
+    function hideAlert() {
+        const box = document.getElementById('alert-box');
+        box.className = 'alert-box';
+    }
+
+    function togglePassword() {
+        const input = document.getElementById('password');
+        const icon = document.getElementById('toggle-pass');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.className = 'fas fa-eye-slash toggle-password';
+        } else {
+            input.type = 'password';
+            icon.className = 'fas fa-eye toggle-password';
+        }
+    }
+
+    function fillCredentials(email, password) {
+        document.getElementById('email').value = email;
+        document.getElementById('password').value = password;
+        hideAlert();
+        document.getElementById('login-btn').focus();
+    }
+</script>
+
+</body>
+</html>
