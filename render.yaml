@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: smart-tourist-safety
+    env: docker
+    plan: free
+    region: singapore
+    buildCommand: docker build -t smart-tourist-safety .
+    startCommand: java -jar app.jar
+    envVars:
+      - key: PORT
+        value: 8080
