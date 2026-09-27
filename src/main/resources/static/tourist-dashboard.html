@@ -413,17 +413,14 @@
     async function triggerSos(event) {
         event.preventDefault();
         const payload = {
-            touristId: parseInt(touristId),
-            touristName: localStorage.getItem('userName') || 'Michael Chen',
             latitude: parseFloat(document.getElementById('sosLat').value),
             longitude: parseFloat(document.getElementById('sosLng').value),
-            sosCategory: document.getElementById('sosCategory').value,
-            emergencyDetails: document.getElementById('sosDescription').value,
-            timestamp: new Date().toISOString()
+            alertType: document.getElementById('sosCategory').value,
+            message: document.getElementById('sosDescription').value
         };
 
         try {
-            const res = await fetch('/api/sos/trigger', {
+            const res = await fetch(`/api/tourists/${touristId}/sos`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -433,18 +430,25 @@
                 msg.textContent = '🚨 SOS Alert Dispatched! Emergency rescue teams have been alerted.';
                 msg.style.display = 'block';
                 document.getElementById('sosForm').reset();
+                setTimeout(() => msg.style.display = 'none', 5000);
+            } else {
+                const err = await res.json().catch(() => ({}));
+                alert('Failed to submit SOS: ' + (err.message || res.statusText));
             }
-        } catch (e) { alert('Error triggering SOS'); }
+        } catch (e) { alert('Error triggering SOS. Please check server connection.'); }
     }
 
     async function loadSosHistory() {
-        const alerts = await fetch('/api/sos/alerts').then(r => r.json());
-        document.getElementById('tourist-sos-body').innerHTML = alerts.map(a => `
+        try {
+            const alerts = await fetch('/api/sos').then(r => r.json());
+            document.getElementById('tourist-sos-body').innerHTML = alerts.length === 0
+                ? '<tr><td colspan="7" class="text-center text-muted">No SOS history found.</td></tr>'
+                : alerts.map(a => `
             <tr>
                 <td>#${a.id}</td>
-                <td>${a.timestamp || ''}</td>
-                <td><span class="badge bg-danger">${a.sosCategory}</span></td>
-                <td>${a.emergencyDetails}</td>
+                <td>${a.alertTime || ''}</td>
+                <td><span class="badge bg-danger">${a.alertType || ''}</span></td>
+                <td>${a.message || ''}</td>
                 <td>${a.insideZoneName || 'N/A'}</td>
                 <td><span class="badge bg-warning text-dark">${a.status}</span></td>
                 <td>
@@ -453,6 +457,9 @@
                     </button>
                 </td>
             </tr>`).join('');
+        } catch (e) {
+            document.getElementById('tourist-sos-body').innerHTML = '<tr><td colspan="7" class="text-center text-danger">Failed to load SOS history.</td></tr>';
+        }
     }
 
     async function deleteSosHistory(id) {
